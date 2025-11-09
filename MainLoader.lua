@@ -1,28 +1,23 @@
 -- MainLoader.lua
 local Library = {}
 
--- Configuration
-local username = "rebarin" 
-local repo = "roblox-dungeon-game"
-
 _G.DungeonGameFeatures = {
-    AntiHit = true,
-    UnlimitedMana = true,
-    AntiAFK = true,
-    FastRevive = true,
+    GodMode = true,
+    UnlimitedStats = true,
     AutoFarm = true,
-    GameGUI = true
+    AutoChest = true,
+    AntiAFK = true
 }
 
-function Library:CreateToggleGUI()
+function Library:CreateGUI()
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "DungeonGameToggle"
+    screenGui.Name = "DungeonLevelingHub"
     screenGui.Parent = game:GetService("CoreGui")
     
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 300, 0, 400)
-    mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    mainFrame.Size = UDim2.new(0, 320, 0, 350)
+    mainFrame.Position = UDim2.new(0, 10, 0, 10)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     mainFrame.BackgroundTransparency = 0.1
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
@@ -35,194 +30,283 @@ function Library:CreateToggleGUI()
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 40)
     title.Position = UDim2.new(0, 0, 0, 0)
-    title.Text = "🎮 DUNGEON LEVELING HUB"
+    title.Text = "⚔️ DUNGEON LEVELING HUB"
     title.TextColor3 = Color3.fromRGB(255, 255, 0)
-    title.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    title.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
     title.TextSize = 16
     title.Font = Enum.Font.GothamBold
     title.Parent = mainFrame
     
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 12)
-    titleCorner.Parent = title
-    
-    -- Close button
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -35, 0, 5)
-    closeButton.Text = "X"
-    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-    closeButton.TextSize = 14
-    closeButton.Parent = title
-    
-    local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 15)
-    closeCorner.Parent = closeButton
-    
-    -- Toggle buttons
+    local UICorner2 = Instance.new("UICorner")
+    UICorner2.CornerRadius = UDim.new(0, 12)
+    UICorner2.Parent = title
+
+    -- Status display
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(1, -20, 0, 60)
+    statusLabel.Position = UDim2.new(0, 10, 0, 45)
+    statusLabel.Text = "🎮 Script Loaded!\nClick buttons to toggle features"
+    statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.TextSize = 12
+    statusLabel.TextWrapped = true
+    statusLabel.Parent = mainFrame
+
+    -- Feature buttons
     local features = {
-        {"🛡️ God Mode (No Damage)", "AntiHit"},
-        {"🔵 Unlimited Mana/Energy", "UnlimitedMana"},
-        {"⚡ Instant Revive", "FastRevive"},
-        {"🤖 Anti AFK", "AntiAFK"},
-        {"⚔️ Auto Farm Monsters", "AutoFarm"},
-        {"📦 Auto Open Chests", "AutoFarm"},
-        {"📊 Status GUI", "GameGUI"}
+        {"🛡️ GOD MODE", "GodMode", "Become invincible"},
+        {"⚡ UNLIMITED STATS", "UnlimitedStats", "Max level & resources"}, 
+        {"🤖 AUTO FARM", "AutoFarm", "Auto kill monsters"},
+        {"📦 AUTO CHEST", "AutoChest", "Auto open chests"},
+        {"🚀 ANTI AFK", "AntiAFK", "Prevent AFK kick"}
     }
-    
-    local toggleButtons = {}
-    
+
+    local buttons = {}
+
     for i, feature in ipairs(features) do
-        local featureName, featureKey = feature[1], feature[2]
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, -20, 0, 35)
+        button.Position = UDim2.new(0, 10, 0, 115 + (i-1)*40)
+        button.Text = feature[1] .. " | " .. (_G.DungeonGameFeatures[feature[2]] and "ON" or "OFF")
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.BackgroundColor3 = _G.DungeonGameFeatures[feature[2]] and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(150, 0, 0)
+        button.TextSize = 12
+        button.Parent = mainFrame
         
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(0.6, 0, 0, 35)
-        label.Position = UDim2.new(0, 15, 0, 50 + (i-1)*45)
-        label.Text = "  " .. featureName
-        label.TextColor3 = Color3.fromRGB(255, 255, 255)
-        label.BackgroundTransparency = 1
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.TextSize = 12
-        label.Parent = mainFrame
+        local tooltip = Instance.new("TextLabel")
+        tooltip.Size = UDim2.new(1, 0, 0, 15)
+        tooltip.Position = UDim2.new(0, 0, 1, 0)
+        tooltip.Text = feature[3]
+        tooltip.TextColor3 = Color3.fromRGB(200, 200, 200)
+        tooltip.BackgroundTransparency = 1
+        tooltip.TextSize = 10
+        tooltip.Parent = button
         
-        local toggleButton = Instance.new("TextButton")
-        toggleButton.Size = UDim2.new(0, 60, 0, 30)
-        toggleButton.Position = UDim2.new(1, -80, 0, 52 + (i-1)*45)
-        toggleButton.Text = _G.DungeonGameFeatures[featureKey] and "ON" or "OFF"
-        toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        toggleButton.BackgroundColor3 = _G.DungeonGameFeatures[featureKey] and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-        toggleButton.TextSize = 12
-        toggleButton.Font = Enum.Font.GothamBold
-        toggleButton.Parent = mainFrame
+        local UICorner3 = Instance.new("UICorner")
+        UICorner3.CornerRadius = UDim.new(0, 6)
+        UICorner3.Parent = button
         
-        local toggleCorner = Instance.new("UICorner")
-        toggleCorner.CornerRadius = UDim.new(0, 8)
-        toggleCorner.Parent = toggleButton
+        buttons[feature[2]] = button
         
-        toggleButtons[featureKey] = toggleButton
-        
-        toggleButton.MouseButton1Click:Connect(function()
-            _G.DungeonGameFeatures[featureKey] = not _G.DungeonGameFeatures[featureKey]
+        button.MouseButton1Click:Connect(function()
+            _G.DungeonGameFeatures[feature[2]] = not _G.DungeonGameFeatures[feature[2]]
+            button.Text = feature[1] .. " | " .. (_G.DungeonGameFeatures[feature[2]] and "ON" or "OFF")
+            button.BackgroundColor3 = _G.DungeonGameFeatures[feature[2]] and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(150, 0, 0)
             
-            if _G.DungeonGameFeatures[featureKey] then
-                toggleButton.Text = "ON"
-                toggleButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-                Library:LoadFeature(featureKey)
+            if _G.DungeonGameFeatures[feature[2]] then
+                Library:EnableFeature(feature[2])
             else
-                toggleButton.Text = "OFF"
-                toggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-                Library:DisableFeature(featureKey)
+                Library:DisableFeature(feature[2])
             end
         end)
     end
-    
-    -- Control buttons
-    local allOnButton = Instance.new("TextButton")
-    allOnButton.Size = UDim2.new(0, 120, 0, 35)
-    allOnButton.Position = UDim2.new(0, 20, 1, -50)
-    allOnButton.Text = "🎯 ALL ON"
-    allOnButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    allOnButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-    allOnButton.TextSize = 14
-    allOnButton.Parent = mainFrame
-    
-    local allOnCorner = Instance.new("UICorner")
-    allOnCorner.CornerRadius = UDim.new(0, 8)
-    allOnCorner.Parent = allOnButton
-    
-    local allOffButton = Instance.new("TextButton")
-    allOffButton.Size = UDim2.new(0, 120, 0, 35)
-    allOffButton.Position = UDim2.new(1, -140, 1, -50)
-    allOffButton.Text = "🚫 ALL OFF"
-    allOffButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    allOffButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-    allOffButton.TextSize = 14
-    allOffButton.Parent = mainFrame
-    
-    local allOffCorner = Instance.new("UICorner")
-    allOffCorner.CornerRadius = UDim.new(0, 8)
-    allOffCorner.Parent = allOffButton
-    
-    allOnButton.MouseButton1Click:Connect(function()
-        for featureKey, button in pairs(toggleButtons) do
-            _G.DungeonGameFeatures[featureKey] = true
-            button.Text = "ON"
-            button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-            Library:LoadFeature(featureKey)
-        end
-    end)
-    
-    allOffButton.MouseButton1Click:Connect(function()
-        for featureKey, button in pairs(toggleButtons) do
-            _G.DungeonGameFeatures[featureKey] = false
-            button.Text = "OFF"
-            button.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            Library:DisableFeature(featureKey)
-        end
-    end)
-    
-    closeButton.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-    
-    return screenGui
+
+    return screenGui, statusLabel, buttons
 end
 
-function Library:LoadFeature(featureName)
-    local moduleUrl = "https://raw.githubusercontent.com/"..username.."/"..repo.."/main/"..featureName..".lua"
-    
-    local success, result = pcall(function()
-        loadstring(game:HttpGet(moduleUrl, true))()
-    end)
-    
-    if success then
-        print("✅ " .. featureName .. " activated!")
-    else
-        warn("❌ Failed to load " .. featureName .. ": " .. tostring(result))
+function Library:EnableFeature(feature)
+    if feature == "GodMode" then
+        self:StartGodMode()
+    elseif feature == "UnlimitedStats" then
+        self:StartUnlimitedStats()
+    elseif feature == "AutoFarm" then
+        self:StartAutoFarm()
+    elseif feature == "AutoChest" then
+        self:StartAutoChest()
+    elseif feature == "AntiAFK" then
+        self:StartAntiAFK()
     end
 end
 
-function Library:DisableFeature(featureName)
-    if featureName == "GameGUI" then
-        local gui = game:GetService("CoreGui"):FindFirstChild("DungeonGameFeatures")
-        if gui then gui:Destroy() end
-    elseif featureName == "AntiHit" then
-        local gui = game:GetService("CoreGui"):FindFirstChild("AntiHitStatus")
-        if gui then gui:Destroy() end
-    elseif featureName == "UnlimitedMana" then
-        local gui = game:GetService("CoreGui"):FindFirstChild("ManaStatus")
-        if gui then gui:Destroy() end
-    elseif featureName == "AutoFarm" then
-        local gui = game:GetService("CoreGui"):FindFirstChild("AutoFarmStatus")
-        if gui then gui:Destroy() end
-    end
-    
-    print("🚫 " .. featureName .. " deactivated!")
+function Library:DisableFeature(feature)
+    print("Disabled: " .. feature)
 end
 
-function Library:LoadDungeonGame()
+-- REAL WORKING FEATURES
+function Library:StartGodMode()
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    
+    -- Method 1: Direct character protection
+    local function protectCharacter(character)
+        if not character then return end
+        
+        local humanoid = character:WaitForChild("Humanoid")
+        
+        -- Prevent health decrease
+        humanoid.HealthChanged:Connect(function()
+            if humanoid.Health < humanoid.MaxHealth then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end)
+        
+        -- Prevent death
+        humanoid.Died:Connect(function()
+            task.wait(3)
+            player:LoadCharacter()
+        end)
+        
+        -- Constant health monitoring
+        while task.wait(1) and _G.DungeonGameFeatures.GodMode do
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end
+    
+    if player.Character then
+        protectCharacter(player.Character)
+    end
+    player.CharacterAdded:Connect(protectCharacter)
+end
+
+function Library:StartUnlimitedStats()
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    
+    while task.wait(2) and _G.DungeonGameFeatures.UnlimitedStats do
+        -- Method 1: Modify leaderstats
+        local leaderstats = player:FindFirstChild("leaderstats")
+        if leaderstats then
+            for _, stat in pairs(leaderstats:GetChildren()) do
+                if stat:IsA("NumberValue") then
+                    if stat.Name:lower():find("level") or stat.Name:lower():find("lvl") then
+                        stat.Value = 999
+                    elseif stat.Name:lower():find("coin") or stat.Name:lower():find("money") or stat.Name:lower():find("gold") then
+                        stat.Value = 999999
+                    elseif stat.Name:lower():find("damage") or stat.Name:lower():find("dmg") then
+                        stat.Value = 9999
+                    else
+                        stat.Value = math.max(stat.Value, 999)
+                    end
+                end
+            end
+        end
+        
+        -- Method 2: Modify attributes
+        if player.Character then
+            player.Character:SetAttribute("Level", 999)
+            player.Character:SetAttribute("Damage", 9999)
+        end
+    end
+end
+
+function Library:StartAutoFarm()
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    
+    while task.wait(3) and _G.DungeonGameFeatures.AutoFarm do
+        local character = player.Character
+        if not character then continue end
+        
+        local humanoid = character:FindFirstChild("Humanoid")
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if not humanoid or not rootPart then continue end
+        
+        -- Find nearest monster
+        local nearestMonster = nil
+        local nearestDistance = 50
+        
+        for _, obj in pairs(workspace:GetChildren()) do
+            if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
+                local monsterHumanoid = obj.Humanoid
+                local monsterRoot = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
+                
+                if monsterHumanoid and monsterRoot and monsterHumanoid.Health > 0 then
+                    local distance = (rootPart.Position - monsterRoot.Position).Magnitude
+                    
+                    if distance < nearestDistance then
+                        nearestMonster = obj
+                        nearestDistance = distance
+                    end
+                end
+            end
+        end
+        
+        -- Attack monster
+        if nearestMonster then
+            local monsterRoot = nearestMonster:FindFirstChild("HumanoidRootPart")
+            if monsterRoot then
+                humanoid:MoveTo(monsterRoot.Position)
+                task.wait(1)
+                nearestMonster.Humanoid.Health = 0
+            end
+        end
+    end
+end
+
+function Library:StartAutoChest()
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    
+    while task.wait(4) and _G.DungeonGameFeatures.AutoChest do
+        local character = player.Character
+        if not character then continue end
+        
+        local humanoid = character:FindFirstChild("Humanoid")
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if not humanoid or not rootPart then continue end
+        
+        -- Find chests
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Part") and (obj.Name:lower():find("chest") or obj.Name:lower():find("box") or obj.Name:lower():find("reward")) then
+                local distance = (rootPart.Position - obj.Position).Magnitude
+                
+                if distance < 30 then
+                    humanoid:MoveTo(obj.Position)
+                    task.wait(1)
+                    
+                    -- Try to trigger chest
+                    firetouchinterest(rootPart, obj, 0)
+                    task.wait(0.1)
+                    firetouchinterest(rootPart, obj, 1)
+                end
+            end
+        end
+    end
+end
+
+function Library:StartAntiAFK()
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    
+    while task.wait(30) and _G.DungeonGameFeatures.AntiAFK do
+        -- Simulate key press
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.W, false, game)
+        task.wait(0.1)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.W, false, game)
+        
+        -- Small movement
+        local character = player.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid:MoveTo(character.HumanoidRootPart.Position + Vector3.new(2, 0, 2))
+        end
+    end
+end
+
+function Library:Load()
     if not game:IsLoaded() then
         game.Loaded:Wait()
     end
     
-    if _G.DungeonGameLoaded then return end
-    _G.DungeonGameLoaded = true
+    if _G.DungeonLoaded then return end
+    _G.DungeonLoaded = true
     
-    -- Create toggle GUI
-    Library:CreateToggleGUI()
+    local gui, statusLabel = self:CreateGUI()
     
-    -- Load enabled features
-    for featureName, enabled in pairs(_G.DungeonGameFeatures) do
+    -- Auto start enabled features
+    for feature, enabled in pairs(_G.DungeonGameFeatures) do
         if enabled then
-            Library:LoadFeature(featureName)
-            wait(1)
+            task.spawn(function()
+                self:EnableFeature(feature)
+            end)
         end
     end
     
-    print("🎮 Dungeon Leveling Hub Ready!")
+    statusLabel.Text = "✅ ALL SYSTEMS READY!\nFeatures are now active"
+    
+    print("🎮 Dungeon Leveling Hub Activated!")
 end
 
-wait(2)
-Library:LoadDungeonGame()
+-- Start the script
+Library:Load()
 return Library
